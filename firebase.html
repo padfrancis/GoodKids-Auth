@@ -2,43 +2,78 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Processing Firebase Action...</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GOOD KIDS - Processing...</title>
+  <style>
+    body {
+      margin: 0;
+      background: linear-gradient(135deg, #f6f9fc, #e3f2fd);
+      font-family: "Segoe UI", sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      padding: 2rem;
+      max-width: 90%;
+      text-align: center;
+      animation: fadeIn 0.6s ease-in-out;
+    }
+    h2 {
+      color: #333;
+      margin: 0;
+      font-size: 1.5rem;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="messageBox">
+    <h2>Processing...</h2>
+  </div>
+
   <script>
     const params = new URLSearchParams(window.location.search);
     const mode = params.get("mode");
     const oobCode = params.get("oobCode");
+    const messageBox = document.getElementById("messageBox");
 
     if (!mode || !oobCode) {
-      document.body.innerHTML = "<h2>Invalid or missing parameters.</h2>";
+      messageBox.innerHTML = "<h2>Invalid or missing verification link.</h2>";
     } else {
       switch (mode) {
         case "verifyEmail":
-          document.body.innerHTML = "<h2>Verifying your email...</h2>";
+          messageBox.innerHTML = "<h2>Verifying your email...</h2>";
           setTimeout(() => {
             window.location.href = "goodkids://verified";
           }, 1500);
           break;
 
         case "resetPassword":
-          document.body.innerHTML = "<h2>Redirecting to password reset screen...</h2>";
+          messageBox.innerHTML = "<h2>Redirecting to password reset screen...</h2>";
           setTimeout(() => {
             window.location.href = `goodkids://reset?oobCode=${oobCode}`;
           }, 1000);
           break;
 
         case "recoverEmail":
-          document.body.innerHTML = "<h2>Email recovery in progress...</h2>";
+          messageBox.innerHTML = "<h2>Recovering your email...</h2>";
           setTimeout(() => {
             window.location.href = `goodkids://recover?oobCode=${oobCode}`;
           }, 1000);
           break;
 
         default:
-          document.body.innerHTML = `<h2>Unsupported action: ${mode}</h2>`;
+          messageBox.innerHTML = `<h2>Unsupported action: ${mode}</h2>`;
       }
     }
   </script>
-</head>
-<body>
 </body>
 </html>
