@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Processing Firebase Action...</title>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const mode = params.get("mode");
+    const oobCode = params.get("oobCode");
+
+    if (!mode || !oobCode) {
+      document.body.innerHTML = "<h2>Invalid or missing parameters.</h2>";
+    } else {
+      switch (mode) {
+        case "verifyEmail":
+          document.body.innerHTML = "<h2>Verifying your email...</h2>";
+          setTimeout(() => {
+            window.location.href = "goodkids://verified";
+          }, 1500);
+          break;
+
+        case "resetPassword":
+          document.body.innerHTML = "<h2>Redirecting to password reset screen...</h2>";
+          setTimeout(() => {
+            window.location.href = `goodkids://reset?oobCode=${oobCode}`;
+          }, 1000);
+          break;
+
+        case "recoverEmail":
+          document.body.innerHTML = "<h2>Email recovery in progress...</h2>";
+          setTimeout(() => {
+            window.location.href = `goodkids://recover?oobCode=${oobCode}`;
+          }, 1000);
+          break;
+
+        default:
+          document.body.innerHTML = `<h2>Unsupported action: ${mode}</h2>`;
+      }
+    }
+  </script>
+</head>
+<body>
+</body>
+</html>
