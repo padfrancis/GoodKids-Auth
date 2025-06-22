@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GOOD KIDS - Processing...</title>
+  <title>GOOD KIDS - Verifying...</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <style>
     body {
       margin: 0;
@@ -21,11 +23,9 @@
       padding: 2rem;
       max-width: 90%;
       text-align: center;
-      animation: fadeIn 0.6s ease-in-out;
     }
     h2 {
       color: #333;
-      margin: 0;
       font-size: 1.5rem;
     }
     .spinner {
@@ -39,10 +39,6 @@
       margin-left: auto;
       margin-right: auto;
     }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
-    }
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
@@ -50,45 +46,50 @@
 </head>
 <body>
   <div class="container" id="messageBox">
-    <h2>Processing your request...</h2>
+    <h2>Loading...</h2>
     <div class="spinner"></div>
   </div>
 
   <script>
+    // Your Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCXdELMAL0kzwrE-hmGQzIztIrR6zjxXug",
+      authDomain: "good-kids-80534.firebaseapp.com",
+    };
+
     const params = new URLSearchParams(window.location.search);
     const mode = params.get("mode");
     const oobCode = params.get("oobCode");
+
     const messageBox = document.getElementById("messageBox");
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
 
     if (!mode || !oobCode) {
       messageBox.innerHTML = "<h2>Invalid or missing verification link.</h2>";
-    } else {
-      switch (mode) {
-        case "verifyEmail":
-          messageBox.innerHTML = "<h2>Verifying your email...</h2><div class='spinner'></div>";
-          // Wait long enough for Firebase to mark it verified
+    } else if (mode === "verifyEmail") {
+      messageBox.innerHTML = "<h2>Verifying your email...</h2><div class='spinner'></div>";
+
+      auth.applyActionCode(oobCode)
+        .then(() => {
+          messageBox.innerHTML = "<h2>Email verified successfully!</h2>";
           setTimeout(() => {
             window.location.href = "goodkids://verified";
-          }, 4000);
-          break;
+          }, 2500);
+        })
+        .catch((error) => {
+          console.error("Verification failed:", error);
+          messageBox.innerHTML = "<h2>Verification failed. Please try again.</h2>";
+        });
 
-        case "resetPassword":
-          messageBox.innerHTML = "<h2>Redirecting to password reset...</h2><div class='spinner'></div>";
-          setTimeout(() => {
-            window.location.href = `goodkids://reset?oobCode=${oobCode}`;
-          }, 2000);
-          break;
-
-        case "recoverEmail":
-          messageBox.innerHTML = "<h2>Restoring your email address...</h2><div class='spinner'></div>";
-          setTimeout(() => {
-            window.location.href = `goodkids://recover?oobCode=${oobCode}`;
-          }, 2000);
-          break;
-
-        default:
-          messageBox.innerHTML = `<h2>Unsupported action: ${mode}</h2>`;
-      }
+    } else if (mode === "resetPassword") {
+      messageBox.innerHTML = "<h2>Redirecting to password reset...</h2><div class='spinner'></div>";
+      setTimeout(() => {
+        window.location.href = `goodkids://reset?oobCode=${oobCode}`;
+      }, 2000);
+    } else {
+      messageBox.innerHTML = `<h2>Unsupported action: ${mode}</h2>`;
     }
   </script>
 </body>
