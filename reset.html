@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Resetting Password...</title>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const mode = params.get("mode");
+    const oobCode = params.get("oobCode");
+
+    if (mode === "resetPassword" && oobCode) {
+      // Redirect to app with oobCode so you can show a password reset screen
+      window.location.href = `goodkids://reset?oobCode=${oobCode}`;
+    } else {
+      document.body.innerHTML = "<h2>Invalid or unsupported reset link.</h2>";
+    }
+  </script>
+</head>
+<body>
+  <h2>Redirecting to your app to reset password...</h2>
+</body>
+</html>

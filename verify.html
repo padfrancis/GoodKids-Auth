@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Verifying Email...</title>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const mode = params.get("mode");
+    const oobCode = params.get("oobCode");
+
+    if (mode === "verifyEmail" && oobCode) {
+      // You can show a message, then redirect
+      setTimeout(() => {
+        window.location.href = "goodkids://verified";
+      }, 1500);
+    } else {
+      document.body.innerHTML = "<h2>Invalid or unsupported verification link.</h2>";
+    }
+  </script>
+</head>
+<body>
+  <h2>Verifying your email...</h2>
+</body>
+</html>
