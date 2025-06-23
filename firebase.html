@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GOOD KIDS - Verifying...</title>
+  <title>GOOD KIDS - Firebase Action</title>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <style>
@@ -28,6 +28,26 @@
       color: #333;
       font-size: 1.5rem;
     }
+    input[type="password"] {
+      padding: 0.5rem;
+      width: 90%;
+      max-width: 300px;
+      margin-top: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    button {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      background-color: #42a5f5;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #1e88e5;
+    }
     .spinner {
       margin-top: 1rem;
       width: 40px;
@@ -42,6 +62,15 @@
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
+    .error {
+      color: red;
+      margin-top: 1rem;
+    }
+    .note {
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+      color: #666;
+    }
   </style>
 </head>
 <body>
@@ -51,7 +80,6 @@
   </div>
 
   <script>
-    // Your Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyCXdELMAL0kzwrE-hmGQzIztIrR6zjxXug",
       authDomain: "good-kids-80534.firebaseapp.com",
@@ -70,7 +98,6 @@
       messageBox.innerHTML = "<h2>Invalid or missing verification link.</h2>";
     } else if (mode === "verifyEmail") {
       messageBox.innerHTML = "<h2>Verifying your email...</h2><div class='spinner'></div>";
-
       auth.applyActionCode(oobCode)
         .then(() => {
           messageBox.innerHTML = "<h2>Email verified successfully!</h2>";
@@ -84,10 +111,50 @@
         });
 
     } else if (mode === "resetPassword") {
-      messageBox.innerHTML = "<h2>Redirecting to password reset...</h2><div class='spinner'></div>";
-      setTimeout(() => {
-        window.location.href = `goodkids://reset?oobCode=${oobCode}`;
-      }, 2000);
+      messageBox.innerHTML = `
+        <h2>Reset Your Password</h2>
+        <input type="password" id="newPassword" placeholder="Enter new password" />
+        <div class="note">
+          Must be at least 8 characters and contain:<br/>
+          • 1 uppercase letter<br/>
+          • 1 number
+        </div>
+        <br />
+        <button onclick="resetPassword()">Submit</button>
+        <div class="error" id="errorBox"></div>
+      `;
+
+      window.resetPassword = function () {
+        const newPassword = document.getElementById("newPassword").value;
+        const errorBox = document.getElementById("errorBox");
+
+        // Firebase-enforced password rules
+        if (newPassword.length < 8) {
+          errorBox.textContent = "Password must be at least 8 characters long.";
+          return;
+        }
+        if (!/[A-Z]/.test(newPassword)) {
+          errorBox.textContent = "Password must include at least one uppercase letter.";
+          return;
+        }
+        if (!/[0-9]/.test(newPassword)) {
+          errorBox.textContent = "Password must include at least one number.";
+          return;
+        }
+
+        auth.confirmPasswordReset(oobCode, newPassword)
+          .then(() => {
+            messageBox.innerHTML = "<h2>Password reset successful!</h2><div class='spinner'></div>";
+            setTimeout(() => {
+              window.location.href = "goodkids://resetdone";
+            }, 2000);
+          })
+          .catch((error) => {
+            console.error("Reset error", error);
+            errorBox.textContent = error.message || "Reset failed. Try again.";
+          });
+      };
+
     } else {
       messageBox.innerHTML = `<h2>Unsupported action: ${mode}</h2>`;
     }
